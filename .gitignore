@@ -1,0 +1,31 @@
+# OS Files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# IDE Files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Environment files (if you add them later)
+.env
+.env.local
+
+# XAMPP specific
+htdocs/.htaccess
+
+# Backup files
+*.bak
+*.backup
+
