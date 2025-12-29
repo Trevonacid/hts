@@ -25,13 +25,18 @@ if (isset($_POST['register'])) {
         $errors[] = "Name can only contain letters, spaces, hyphens, and apostrophes!";
     }
 
-    // Email validation
+    // Email validation - simplified and fixed
     if (empty($email)) {
         $errors[] = "Email address is required!";
-    } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
-        $errors[] = "Please enter a valid email address!";
-    } elseif (strlen($email) > 100) {
-        $errors[] = "Email address must not exceed 100 characters!";
+    } else {
+        // Ensure email is properly trimmed
+        $email = trim($email);
+        
+        if (strlen($email) > 100) {
+            $errors[] = "Email address must not exceed 100 characters!";
+        } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
+            $errors[] = "Please enter a valid email address! (Example: yourname@gmail.com)";
+        }
     }
 
     // Password validation
@@ -205,13 +210,19 @@ if (isset($_POST['register'])) {
                 }
             });
 
-            // Email validation
+            // Email validation - simplified (don't interfere with HTML5 validation)
             email.addEventListener('input', function() {
-                if (this.value && !this.validity.valid) {
-                    this.setCustomValidity('Please enter a valid email address!');
-                } else {
-                    this.setCustomValidity('');
+                const value = this.value.trim();
+                let message = '';
+                
+                if (value.length > 0) {
+                    if (value.length > 100) {
+                        message = 'Email address must not exceed 100 characters!';
+                    }
+                    // Let HTML5 handle email format validation
                 }
+                
+                this.setCustomValidity(message);
             });
 
             function validatePassword(field) {
@@ -244,9 +255,20 @@ if (isset($_POST['register'])) {
                     isValid = false;
                 }
 
-                if (!email.value || !email.validity.valid) {
-                    errors.push('Please enter a valid email address');
+                const emailValue = email.value.trim();
+                if (!emailValue) {
+                    errors.push('Email address is required');
                     isValid = false;
+                } else if (emailValue.length > 100) {
+                    errors.push('Email address must not exceed 100 characters');
+                    isValid = false;
+                } else {
+                    // Use regex for more reliable validation
+                    const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+                    if (!emailRegex.test(emailValue)) {
+                        errors.push('Please enter a valid email address');
+                        isValid = false;
+                    }
                 }
 
                 if (!password.value || password.value.length < 8) {
