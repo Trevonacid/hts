@@ -60,6 +60,7 @@ if (isset($_POST['login'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Habit Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
     <div class="container">
@@ -81,7 +82,7 @@ if (isset($_POST['login'])) {
                     <div class="password-wrapper">
                         <input type="password" id="password" name="password" placeholder="Enter your password" required>
                         <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                            <span class="eye-icon">👁️</span>
+                            <i class="fa-regular fa-eye eye-icon"></i>
                         </button>
                     </div>
                 </div>
@@ -101,10 +102,12 @@ if (isset($_POST['login'])) {
             
             if (field.type === 'password') {
                 field.type = 'text';
-                icon.textContent = '🙈';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             } else {
                 field.type = 'password';
-                icon.textContent = '👁️';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
     </script>

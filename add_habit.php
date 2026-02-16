@@ -10,6 +10,7 @@ if (!isset($_SESSION['user_id'])) {
 if (isset($_POST['add'])) {
     $habit = trim($_POST['habit'] ?? '');
     $user_id = $_SESSION['user_id'];
+    $habit_type = $_POST['habit_type'] ?? 'good';
 
     // Comprehensive validation
     $errors = [];
@@ -23,10 +24,15 @@ if (isset($_POST['add'])) {
     } elseif (!preg_match("/^[a-zA-Z0-9\s\-_.,!?()]+$/u", $habit)) {
         $errors[] = "Habit name contains invalid characters! Only letters, numbers, spaces, and basic punctuation are allowed.";
     }
+
+    // Habit type validation (good/bad)
+    if (!in_array($habit_type, ['good', 'bad'], true)) {
+        $errors[] = "Invalid habit type selected!";
+    }
     
     if (empty($errors)) {
-        $stmt = $conn->prepare("INSERT INTO habits (user_id, habit_name, created_at) VALUES (?, ?, CURDATE())");
-        $stmt->bind_param("is", $user_id, $habit);
+        $stmt = $conn->prepare("INSERT INTO habits (user_id, habit_name, habit_type, created_at) VALUES (?, ?, ?, CURDATE())");
+        $stmt->bind_param("iss", $user_id, $habit, $habit_type);
         
         if ($stmt->execute()) {
             $_SESSION['success'] = "Habit added successfully!";

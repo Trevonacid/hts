@@ -108,6 +108,7 @@ if (isset($_POST['register'])) {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Register - Habit Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
     <div class="container">
@@ -137,7 +138,7 @@ if (isset($_POST['register'])) {
                     <div class="password-wrapper">
                         <input type="password" id="password" name="password" placeholder="Enter password (min. 8 characters)" required minlength="8" maxlength="128">
                         <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                            <span class="eye-icon">👁️</span>
+                            <i class="fa-regular fa-eye eye-icon"></i>
                         </button>
                     </div>
                     <small class="form-hint">Must contain: uppercase, lowercase, number, and special character</small>
@@ -147,7 +148,7 @@ if (isset($_POST['register'])) {
                     <div class="password-wrapper">
                         <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter your password" required>
                         <button type="button" class="toggle-password" onclick="togglePassword('confirm_password')">
-                            <span class="eye-icon">👁️</span>
+                            <i class="fa-regular fa-eye eye-icon"></i>
                         </button>
                     </div>
                 </div>
@@ -167,10 +168,12 @@ if (isset($_POST['register'])) {
             
             if (field.type === 'password') {
                 field.type = 'text';
-                icon.textContent = '🙈';
+                icon.classList.remove('fa-eye');
+                icon.classList.add('fa-eye-slash');
             } else {
                 field.type = 'password';
-                icon.textContent = '👁️';
+                icon.classList.remove('fa-eye-slash');
+                icon.classList.add('fa-eye');
             }
         }
 

@@ -80,6 +80,13 @@ $success = isset($_SESSION['success']) ? $_SESSION['success'] : '';
 $error = isset($_SESSION['error']) ? $_SESSION['error'] : '';
 unset($_SESSION['success']);
 unset($_SESSION['error']);
+
+// Active tab for navigation (habits, visuals, activity)
+$activeTab = $_GET['tab'] ?? 'habits';
+$allowedTabs = ['habits', 'visuals', 'activity'];
+if (!in_array($activeTab, $allowedTabs, true)) {
+    $activeTab = 'habits';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -88,16 +95,34 @@ unset($_SESSION['error']);
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard - Habit Tracker</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
+    <header class="site-navbar">
+        <div class="site-navbar-inner">
+            <a href="index.php" class="site-logo">Habit<span>Tracker</span></a>
+            <input type="checkbox" id="nav-toggle" class="nav-toggle">
+            <label for="nav-toggle" class="nav-toggle-label">
+                <span></span>
+            </label>
+            <nav class="site-nav-links">
+                <a href="dashboard.php?tab=habits" class="<?php echo $activeTab === 'habits' ? 'active' : ''; ?>">Habits</a>
+                <a href="dashboard.php?tab=visuals" class="<?php echo $activeTab === 'visuals' ? 'active' : ''; ?>">Visuals</a>
+                <a href="dashboard.php?tab=activity" class="<?php echo $activeTab === 'activity' ? 'active' : ''; ?>">Activity</a>
+                <a href="admin_login.php">Admin</a>
+                <a href="logout.php" class="btn btn-secondary btn-small" style="text-decoration:none;">Logout</a>
+            </nav>
+        </div>
+    </header>
+
     <div class="container">
         <header class="dashboard-header">
             <div>
-                <h1>Welcome, <?php echo htmlspecialchars($user_name); ?>! 👋</h1>
+                <h1>Welcome, <?php echo htmlspecialchars($user_name); ?>! <i class="fa-regular fa-hand-wave"></i></h1>
                 <p class="subtitle">Track your progress and build better habits</p>
             </div>
-            <a href="logout.php" class="btn btn-secondary">Logout</a>
+            <!-- Logout moved to top navbar; keep space for future content if needed -->
         </header>
 
         <?php if ($success): ?>
@@ -123,8 +148,8 @@ unset($_SESSION['error']);
             </div>
         </div>
 
-        <?php if (!empty($habits_with_stats)): ?>
-        <div class="charts-section">
+        <?php if (!empty($habits_with_stats) && $activeTab === 'visuals'): ?>
+        <section class="charts-section" id="visual-section">
             <div class="charts-grid">
                 <div class="card chart-card">
                     <h2>Habit Completions (Bar Chart)</h2>
@@ -135,44 +160,72 @@ unset($_SESSION['error']);
                     <canvas id="pieChart"></canvas>
                 </div>
             </div>
+        </section>
+        <?php endif; ?>
+
+        <?php if (!empty($habits_with_stats) && $activeTab === 'activity'): ?>
+        <section class="activity-section" id="activity-section">
             <div class="card chart-card">
                 <h2>Last 7 Days Activity</h2>
                 <canvas id="lineChart"></canvas>
             </div>
-        </div>
+        </section>
         <?php endif; ?>
 
+        <?php if ($activeTab === 'habits'): ?>
         <div class="card">
             <h2>Add New Habit</h2>
             <form action="add_habit.php" method="POST" class="add-habit-form">
-                <div class="form-group">
+                <div class="form-group add-habit-group">
                     <input type="text" name="habit" placeholder="Enter habit name (e.g., Drink 8 glasses of water)" required maxlength="100">
+                    <select name="habit_type" class="habit-type-select" required>
+                        <option value="good" selected>Good Habit</option>
+                        <option value="bad">Bad Habit</option>
+                    </select>
                     <button type="submit" name="add" class="btn btn-primary">+ Add Habit</button>
                 </div>
             </form>
         </div>
 
-        <div class="habits-section">
-            <h2>Your Habits</h2>
+        <div class="habits-section" id="habits-section">
+            <div class="habits-header-row">
+                <h2>Your Habits</h2>
+                <?php if (!empty($habits_with_stats)): ?>
+                <div class="habit-filters">
+                    <button type="button" class="btn btn-secondary btn-small habit-filter-btn active" data-filter="all">All</button>
+                    <button type="button" class="btn btn-secondary btn-small habit-filter-btn" data-filter="good">Good Habits</button>
+                    <button type="button" class="btn btn-secondary btn-small habit-filter-btn" data-filter="bad">Bad Habits</button>
+                </div>
+                <?php endif; ?>
+            </div>
             
             <?php if (empty($habits_with_stats)): ?>
                 <div class="empty-state">
-                    <p>No habits yet. Start by adding your first habit above! 🎯</p>
+                    <p><i class="fa-regular fa-circle-dot"></i> No habits yet. Start by adding your first habit above!</p>
                 </div>
             <?php else: ?>
                 <div class="habits-grid">
                     <?php foreach ($habits_with_stats as $habit): ?>
-                        <div class="habit-card">
+                        <?php
+                            $type = $habit['habit_type'] ?? 'good';
+                            $typeLabel = $type === 'bad' ? 'Bad Habit' : 'Good Habit';
+                        ?>
+                        <div class="habit-card" data-habit-type="<?php echo htmlspecialchars($type); ?>">
                             <div class="habit-header">
-                                <h3><?php echo htmlspecialchars($habit['habit_name']); ?></h3>
+                                <div>
+                                    <h3><?php echo htmlspecialchars($habit['habit_name']); ?></h3>
+                                    <span class="habit-type-badge <?php echo $type === 'bad' ? 'bad' : 'good'; ?>">
+                                        <?php echo htmlspecialchars($typeLabel); ?>
+                                    </span>
+                                </div>
                                 <div class="habit-header-actions">
                                     <a href="edit_habit.php?id=<?php echo $habit['id']; ?>" 
                                        class="edit-btn" 
-                                       title="Edit habit">✏️</a>
+                                       title="Edit habit"><i class="fa-solid fa-pen"></i></a>
                                     <a href="delete_habit.php?id=<?php echo $habit['id']; ?>" 
                                        class="delete-btn" 
                                        onclick="return confirm('Are you sure you want to delete this habit?');"
-                                       title="Delete habit">🗑️</a>
+                                       title="Delete habit"><i class="fa-solid fa-trash"></i></a>
                                 </div>
                             </div>
                             
@@ -194,7 +247,7 @@ unset($_SESSION['error']);
                                     <a href="mark_done.php?id=<?php echo $habit['id']; ?>" class="btn btn-success">Mark as Done</a>
                                 <?php endif; ?>
                                 <button type="button" class="btn btn-secondary btn-small" onclick="openDatePicker(<?php echo $habit['id']; ?>, '<?php echo htmlspecialchars($habit['habit_name']); ?>', '<?php echo $habit['created_at']; ?>')">
-                                    📅 Mark for Date
+                                    <i class="fa-regular fa-calendar-days"></i> Mark for Date
                                 </button>
                             </div>
                             
@@ -206,6 +259,7 @@ unset($_SESSION['error']);
                 </div>
             <?php endif; ?>
         </div>
+        <?php endif; ?>
     </div>
 
     <!-- Date Picker Modal -->
@@ -405,6 +459,29 @@ unset($_SESSION['error']);
                 });
             }
         }
+
+        // Habit type filter buttons (good / bad / all) - only on Habits tab
+        const filterButtons = document.querySelectorAll('.habit-filter-btn');
+        const habitCards = document.querySelectorAll('.habit-card');
+
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                const filter = btn.getAttribute('data-filter');
+
+                // Active button styling
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+
+                habitCards.forEach(card => {
+                    const type = card.getAttribute('data-habit-type') || 'good';
+                    if (filter === 'all' || filter === type) {
+                        card.style.display = '';
+                    } else {
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        });
 
         // Date Picker Modal Functions
         function openDatePicker(habitId, habitName, createdDate) {

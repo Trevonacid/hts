@@ -12,6 +12,7 @@ CREATE TABLE habits (
     id INT AUTO_INCREMENT PRIMARY KEY,
     user_id INT,
     habit_name VARCHAR(100),
+    habit_type ENUM('good','bad') NOT NULL DEFAULT 'good',
     created_at DATE,
     FOREIGN KEY (user_id) REFERENCES users(id)
 );

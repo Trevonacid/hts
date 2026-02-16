@@ -45,6 +45,7 @@ $habits_stmt->close();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>View User - Admin</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
 </head>
 <body>
     <div class="container">
@@ -97,7 +98,7 @@ $habits_stmt->close();
                                 <h3><?php echo htmlspecialchars($habit['habit_name']); ?></h3>
                                 <a href="admin_delete_habit.php?habit_id=<?php echo $habit['id']; ?>&user_id=<?php echo $user_id; ?>" 
                                    class="delete-btn" 
-                                   onclick="return confirm('Delete this habit?');">🗑️</a>
+                                   onclick="return confirm('Delete this habit?');"><i class="fa-solid fa-trash"></i></a>
                             </div>
                             <div class="habit-stats">
                                 <div class="stat-mini">

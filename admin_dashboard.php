@@ -14,15 +14,15 @@ $error = isset($_SESSION['error']) ? $_SESSION['error'] : '';
 unset($_SESSION['success']);
 unset($_SESSION['error']);
 
-// Get all users with their habit counts
-$users_query = "SELECT u.id, u.name, u.email, u.created_at, 
+// Get all users with their habit counts and join date
+$users_query = "SELECT u.id, u.name, u.email, u.created_at,
                 COUNT(DISTINCT h.id) as habit_count,
                 COUNT(DISTINCT hl.id) as log_count
                 FROM users u
                 LEFT JOIN habits h ON u.id = h.user_id
                 LEFT JOIN habit_logs hl ON h.id = hl.habit_id
                 WHERE u.is_admin = 0
-                GROUP BY u.id
+                GROUP BY u.id, u.created_at
                 ORDER BY u.created_at DESC";
 $users_result = $conn->query($users_query);
 $users = $users_result->fetch_all(MYSQLI_ASSOC);
